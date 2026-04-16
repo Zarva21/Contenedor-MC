@@ -8,17 +8,18 @@ apt update && apt upgrade -y
 echo " Instalando Java..."
 apt install -y openjdk-17-jre curl wget gnupg
 
-echo " Creando usuario minecraft..."
-useradd -m -r -d /home/minecraft -s /bin/bash minecraft || true
+echo "Creando usuario minecraft..."
+id minecraft || useradd -m -r -d /home/minecraft -s /bin/bash minecraft
+
+
 
 echo " Creando directorio del servidor..."
 mkdir -p /home/minecraft/server
 chown -R minecraft:minecraft /home/minecraft
 
-echo "⬇ Descargando servidor Minecraft..."
 sudo -u minecraft bash <<EOF
 cd /home/minecraft/server
-wget -O server.jar https://piston-data.mojang.com/v1/objects/fe3b6c2c4bdfaf3d4f8f4cdb5c7c7e5e6e6e6e6e/server.jar || true
+wget -O server.jar https://api.papermc.io/v2/projects/paper/versions/1.20.4/builds/latest/downloads/paper-1.20.4-latest.jar
 echo "eula=true" > eula.txt
 EOF
 
@@ -32,12 +33,14 @@ After=network.target
 [Service]
 User=minecraft
 WorkingDirectory=/home/minecraft/server
-ExecStart=/usr/bin/java -Xms1G -Xmx2G -jar server.jar nogui
+ExecStart=/usr/bin/java -Xms512M -Xmx4G -jar server.jar nogui
 Restart=always
+RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
 EOF
+
 
 echo " Instalando playit..."
 
