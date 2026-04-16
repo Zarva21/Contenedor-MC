@@ -6,7 +6,7 @@ echo " Actualizando sistema..."
 apt update && apt upgrade -y
 
 echo " Instalando Java..."
-apt install -y openjdk-17-jre curl wget gnupg
+apt install -y openjdk-21-jre curl wget gnupg
 
 echo "Creando usuario minecraft..."
 id minecraft || useradd -m -r -d /home/minecraft -s /bin/bash minecraft
@@ -19,7 +19,7 @@ chown -R minecraft:minecraft /home/minecraft
 
 sudo -u minecraft bash <<EOF
 cd /home/minecraft/server
-wget -O server.jar https://api.papermc.io/v2/projects/paper/versions/1.20.4/builds/latest/downloads/paper-1.20.4-latest.jar
+wget https://piston-data.mojang.com/v1/objects/64bb6d763bed0a9f1d632ec347938594144943ed/server.jar
 echo "eula=true" > eula.txt
 EOF
 
@@ -41,6 +41,9 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
 
+chown -R minecraft:minecraft /home/minecraft
+chmod -R 755 /home/minecraft
+
 
 echo " Instalando playit..."
 
@@ -49,20 +52,7 @@ echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.git
 apt update
 apt install -y playit
 
-echo " Creando servicio systemd para playit..."
 
-cat <<EOF > /etc/systemd/system/playit.service
-[Unit]
-Description=Playit Tunnel Agent
-After=network.target
-
-[Service]
-ExecStart=/usr/bin/playit
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOF
 
 echo " Recargando systemd..."
 systemctl daemon-reload
@@ -75,4 +65,4 @@ echo " Iniciando servicios..."
 systemctl start minecraft
 systemctl start playit
 
-echo " Instalación completa."
+echo " Instalación completa. ahora tocaria configurar playit para exponer el puerto del servidor de Minecraft."
